@@ -1,0 +1,33 @@
+{
+    "ssh": {
+        "enabled": true,
+        "port": 2223,
+        "interface": "0.0.0.0",
+        "banner": "SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.1",
+        "key_file": "server.key"
+    },
+    "logging": {
+        "level": "INFO",
+        "max_size": 10485760,
+        "backup_count": 10
+    },
+    "emulation": {
+        "hostname": "corporate-jumpbox2",
+        "username": "corpuser1",
+        "filesystem": {
+            "/usr/local": ["jumpbox1.conf", "system.log", "backup.tar.gz"],
+            "/home/corpuser1": [".bashrc", ".profile", "notes.txt"]
+        }
+    },
+    "deception": {
+        "sensitivity": "medium",
+        "interaction_level": "medium"
+    },
+    "credentials": {
+        "accepted_credentials": [
+            {"username": "admin", "password": "password123"},
+            {"username": "root", "password": "toor"},
+            {"username": "user", "password": "password"}
+        ]
+    }
+}
