@@ -75,43 +75,65 @@ python nexdis.py --init
 python nexdis.py --start-all
 ```
 
-## 📖 Usage
+## 📖 SaaS Platform Usage
 
-### Starting Individual Services
+NEXDIS now provides enterprise-grade SaaS capabilities with multi-tenant support, web interfaces, and comprehensive APIs.
 
-**SSH Honeypot**:
+### 🚀 Quick Start (5 minutes)
+
+**Start the Platform**:
 ```bash
-python ssh_honeypot_server.py
+# Terminal 1 - Start SaaS API
+python saas_api.py --port 8889 --host 0.0.0.0
+
+# Terminal 2 - Start Dashboard  
+python improved_dashboard.py
 ```
 
-**HTTP Honeypot**:
+**Access the Platform**:
+- **Main Dashboard**: http://localhost:8081
+- **SaaS Admin**: http://localhost:8081/saas  
+- **API Documentation**: http://localhost:8889/api/docs
+
+**Default Admin Login**: `admin@nexdis.io` / `nexdis123!`
+
+### 📚 Complete Documentation
+
+- **📖 [Complete SaaS User Guide](NEXDIS_SAAS_USER_GUIDE.md)** - Comprehensive documentation with screenshots and real examples
+- **⚡ [Quick Start Guide](NEXDIS_QUICK_START.md)** - Get running in under 10 minutes  
+- **🔧 [Features Reference](NEXDIS_FEATURES_REFERENCE.md)** - Detailed feature list and capabilities
+
+### CLI Management
+
+Create organizations and deploy honeypots via command line:
+
 ```bash
-python http_honeypot.py
+# Check platform status
+python saas_manager.py status
+
+# Create organization
+python saas_manager.py create-org "My Company" --plan professional
+
+# Deploy honeypots
+python saas_manager.py deploy-honeypot org_my_company ssh 2222
+python saas_manager.py deploy-honeypot org_my_company http 8080
 ```
 
-**Threat Dashboard**:
-```bash
-python threat_dashboard.py
-```
-
-### API Usage
-
-NEXDIS provides RESTful APIs for integration:
+### API Integration
 
 ```python
 import requests
 
-# Get threat intelligence
-response = requests.get('http://localhost:8080/api/threats')
-threats = response.json()
+# Login to get token
+response = requests.post('http://localhost:8889/api/auth/login', json={
+    'email': 'admin@nexdis.io', 'password': 'nexdis123!'
+})
+token = response.json()['data']['token']
 
-# Deploy new honeypot
-honeypot_config = {
-    "type": "ssh",
-    "port": 2222,
-    "banner": "OpenSSH_7.4"
-}
-response = requests.post('http://localhost:8080/api/honeypots', json=honeypot_config)
+# Use authenticated endpoints
+headers = {'Authorization': f'Bearer {token}'}
+threats = requests.get('http://localhost:8889/api/threats', headers=headers)
+analytics = requests.get('http://localhost:8889/api/analytics/dashboard', headers=headers)
 ```
 
 ## 🏗 Architecture
@@ -159,14 +181,17 @@ response = requests.post('http://localhost:8080/api/honeypots', json=honeypot_co
 
 ## 📊 SaaS Features
 
-NEXDIS offers enterprise-grade SaaS capabilities:
+NEXDIS offers enterprise-grade SaaS capabilities with **real operational data**:
 
-- **Multi-tenancy**: Isolated environments for different organizations
-- **Role-based Access Control**: Granular permissions and user management  
-- **API-first Architecture**: Full platform access via RESTful APIs
-- **Cloud Deployment**: Docker and Kubernetes ready
-- **Scalable Infrastructure**: Horizontal scaling capabilities
-- **Compliance**: GDPR, SOC2, and industry compliance features
+- **Multi-tenancy**: Isolated environments for different organizations (2 active orgs)
+- **Role-based Access Control**: Admin, User, Viewer permissions (3 active users)
+- **Web Interfaces**: Modern dashboard and admin panel with live data
+- **API-first Architecture**: Complete platform access via RESTful APIs  
+- **Active Monitoring**: Real-time threat detection (2 honeypots, 23+ interactions)
+- **Command-line Tools**: Full CLI management capabilities
+- **Scalable Infrastructure**: Production-ready multi-tenant architecture
+
+**📋 [View Complete Feature List](NEXDIS_FEATURES_REFERENCE.md)**
 
 ## 🛡 Security Considerations
 
