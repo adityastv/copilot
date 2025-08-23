@@ -1,0 +1,45 @@
+{
+  "id": "b456c41c-0363-4dc5-bf83-d70f3d53cd4b",
+  "name": "RileyJones506",
+  "skill_level": "novice",
+  "creation_time": "2025-08-23T20:06:43.751909",
+  "last_active": "2025-08-23T20:06:43.751909",
+  "behavior_traits": {
+    "patience": 0.43153791029656885,
+    "thoroughness": 0.25943357915039833,
+    "caution": 0.24586082173991153,
+    "persistence": 0.37039164495538757,
+    "creativity": 0.49838203377601825,
+    "adaptability": 0.17067718783505542,
+    "aggression": 0.670943860875026,
+    "stealth_focus": 0.19767937797536647
+  },
+  "objectives": [
+    "privilege_escalation",
+    "persistence_establishment"
+  ],
+  "tools": [
+    "scp",
+    "wget",
+    "nmap",
+    "nc"
+  ],
+  "indicators": {
+    "typing_patterns": [
+      "fast_typing",
+      "command_repetition"
+    ],
+    "command_patterns": [
+      "basic_commands_only",
+      "help_usage",
+      "verbose_flags",
+      "distinctive_aliases"
+    ],
+    "timing_patterns": [
+      "long_pauses",
+      "variable_timing"
+    ]
+  },
+  "knowledge_base": {},
+  "engagement_history": []
+}

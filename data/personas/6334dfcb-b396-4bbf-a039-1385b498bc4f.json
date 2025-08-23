@@ -1,0 +1,47 @@
+{
+  "id": "6334dfcb-b396-4bbf-a039-1385b498bc4f",
+  "name": "RileyLee315",
+  "skill_level": "intermediate",
+  "creation_time": "2025-08-23T20:06:43.752062",
+  "last_active": "2025-08-23T20:06:43.752062",
+  "behavior_traits": {
+    "patience": 0.33155286887707913,
+    "thoroughness": 0.6625103469251713,
+    "caution": 0.7841477521052465,
+    "persistence": 0.21440200502028606,
+    "creativity": 1.1415777714107749,
+    "adaptability": 0.9777846757920513,
+    "aggression": 0.2574346695050999,
+    "stealth_focus": 0.1495157278472781
+  },
+  "objectives": [
+    "privilege_escalation",
+    "persistence_establishment",
+    "lateral_movement",
+    "data_exfiltration"
+  ],
+  "tools": [
+    "scp",
+    "ssh",
+    "curl",
+    "nc",
+    "dirb"
+  ],
+  "indicators": {
+    "typing_patterns": [
+      "occasional_typo"
+    ],
+    "command_patterns": [
+      "pipe_usage",
+      "script_execution",
+      "parameter_tweaking",
+      "distinctive_aliases"
+    ],
+    "timing_patterns": [
+      "variable_timing",
+      "deliberate_delays"
+    ]
+  },
+  "knowledge_base": {},
+  "engagement_history": []
+}

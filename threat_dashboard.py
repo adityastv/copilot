@@ -509,4 +509,120 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                 .then(response => response.json())
                 .then(data => {
                     let threatTypesHtml = '';
-                    for (const [type, count] of Object.entries(
+                    for (const [type, count] of Object.entries(data.threat_types || {})) {
+                        threatTypesHtml += `<span class="badge bg-secondary me-1">${type}: ${count}</span>`;
+                    }
+                    
+                    contentDiv.innerHTML = `
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Session Information</h6>
+                                <p><strong>Session ID:</strong> ${data.session_id || sessionId}</p>
+                                <p><strong>Client IP:</strong> ${data.client_ip || 'Unknown'}</p>
+                                <p><strong>Start Time:</strong> ${data.start_time || 'Unknown'}</p>
+                                <p><strong>Duration:</strong> ${data.duration || 'Unknown'}</p>
+                                <p><strong>Commands:</strong> ${data.command_count || 0}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Threat Analysis</h6>
+                                <p><strong>Threat Level:</strong> ${data.threat_level || 'Unknown'}</p>
+                                <p><strong>Types:</strong> ${threatTypesHtml || 'None'}</p>
+                                <p><strong>Status:</strong> ${data.status || 'Active'}</p>
+                            </div>
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Error loading session details:', error);
+                    contentDiv.innerHTML = '<p class="text-danger">Error loading session details</p>';
+                });
+        }
+        </script>
+    </body>
+    </html>
+        """
+        
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.send_header('Content-Length', str(len(html.encode('utf-8'))))
+        self.end_headers()
+        self.wfile.write(html.encode('utf-8'))
+
+class ThreatDashboard:
+    """Main threat dashboard server"""
+    
+    def __init__(self, host: str = "0.0.0.0", port: int = 8080):
+        self.host = host
+        self.port = port
+        self.server = None
+        self.thread = None
+        
+    def start(self):
+        """Start the dashboard server"""
+        try:
+            # Create server with custom handler
+            def handler(*args, **kwargs):
+                DashboardRequestHandler(*args, dashboard=self, **kwargs)
+            
+            self.server = HTTPServer((self.host, self.port), handler)
+            self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+            self.thread.start()
+            
+            logger.info(f"Threat dashboard started at http://{self.host}:{self.port}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error starting dashboard: {str(e)}")
+            return False
+    
+    def stop(self):
+        """Stop the dashboard server"""
+        if self.server:
+            self.server.shutdown()
+            self.server.server_close()
+            logger.info("Threat dashboard stopped")
+    
+    def get_dashboard_data(self):
+        """Get data for dashboard"""
+        # In a real implementation, this would collect data from the database
+        return {
+            "total_sessions": 15,
+            "active_sessions": 3,
+            "total_commands": 247,
+            "total_alerts": 8,
+            "critical_alerts": 2,
+            "threat_distribution": {
+                "info": 5,
+                "low": 8,
+                "medium": 12,
+                "high": 6,
+                "critical": 2
+            },
+            "recent_alerts": [
+                {
+                    "id": "alert1",
+                    "timestamp": "2024-08-23T15:30:00Z",
+                    "client_ip": "192.168.1.100",
+                    "threat_type": "reconnaissance",
+                    "severity": "medium"
+                }
+            ]
+        }
+
+# Main execution
+if __name__ == "__main__":
+    dashboard = ThreatDashboard()
+    try:
+        dashboard.start()
+        print("NEXDIS Threat Dashboard started at http://localhost:8080")
+        print("Press Ctrl+C to stop...")
+        
+        # Keep the main thread running
+        import time
+        while True:
+            time.sleep(1)
+            
+    except KeyboardInterrupt:
+        print("\nShutting down NEXDIS Threat Dashboard...")
+        dashboard.stop()
+        print("Dashboard stopped.")

@@ -1,0 +1,43 @@
+{
+  "id": "80170cf2-7696-4bf2-8f6f-007443d35032",
+  "name": "MorganGarcia883",
+  "skill_level": "novice",
+  "creation_time": "2025-08-23T20:06:43.751366",
+  "last_active": "2025-08-23T20:06:43.751366",
+  "behavior_traits": {
+    "patience": 0.11323634877945915,
+    "thoroughness": 0.21119001916198377,
+    "caution": 0.37768967061637854,
+    "persistence": 0.3624422391478549,
+    "creativity": 0.3080774559580334,
+    "adaptability": 0.3159984052890564,
+    "aggression": 0.18245688431150328,
+    "stealth_focus": 0.1409778639027869
+  },
+  "objectives": [
+    "system_reconnaissance",
+    "vulnerability_scanning"
+  ],
+  "tools": [
+    "curl",
+    "ssh"
+  ],
+  "indicators": {
+    "typing_patterns": [
+      "occasional_typo",
+      "frequent_corrections"
+    ],
+    "command_patterns": [
+      "basic_commands_only",
+      "help_usage",
+      "verbose_flags",
+      "distinctive_aliases"
+    ],
+    "timing_patterns": [
+      "long_pauses",
+      "variable_timing"
+    ]
+  },
+  "knowledge_base": {},
+  "engagement_history": []
+}

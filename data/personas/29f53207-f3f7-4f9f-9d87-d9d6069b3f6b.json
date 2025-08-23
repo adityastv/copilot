@@ -1,0 +1,52 @@
+{
+  "id": "29f53207-f3f7-4f9f-9d87-d9d6069b3f6b",
+  "name": "AveryBrown514",
+  "skill_level": "expert",
+  "creation_time": "2025-08-23T20:06:43.752207",
+  "last_active": "2025-08-23T20:06:43.752207",
+  "behavior_traits": {
+    "patience": 0.4543555768744966,
+    "thoroughness": 1.1914146788876536,
+    "caution": 0.9172960237074153,
+    "persistence": 0.7862358631564382,
+    "creativity": 0.4628695150599877,
+    "adaptability": 0.24689404998047926,
+    "aggression": 0.7359962806103703,
+    "stealth_focus": 0.6088118037247456
+  },
+  "objectives": [
+    "privilege_escalation",
+    "persistence_establishment",
+    "lateral_movement",
+    "data_exfiltration"
+  ],
+  "tools": [
+    "curl",
+    "dirb",
+    "metasploit",
+    "hydra",
+    "sqlmap",
+    "john",
+    "responder",
+    "empire",
+    "mimikatz",
+    "cobalt strike"
+  ],
+  "indicators": {
+    "typing_patterns": [
+      "occasional_typo"
+    ],
+    "command_patterns": [
+      "oneliners",
+      "advanced_options",
+      "custom_tools"
+    ],
+    "timing_patterns": [
+      "rapid_execution",
+      "variable_timing",
+      "deliberate_delays"
+    ]
+  },
+  "knowledge_base": {},
+  "engagement_history": []
+}

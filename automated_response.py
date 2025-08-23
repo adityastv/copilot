@@ -1396,4 +1396,128 @@ class CountermeasureAction(ResponseAction):
             self.countermeasure_data = error_config
             self.add_note(f"Deployed fake errors with {error_config['frequency']} frequency and {error_config['pattern']} pattern")
             
-            # In a real system, you would actually implement
+            # In a real system, you would actually implement error injection
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error deploying fake errors: {str(e)}")
+            return False
+
+class AutomatedResponseSystem:
+    """Main automated response system coordinator"""
+    
+    def __init__(self, config: Dict[str, Any] = None):
+        self.config = config or self._get_default_config()
+        self.response_actions = {
+            "containment": ContainmentAction,
+            "deception": DeceptionAction,
+            "evidence": EvidenceCollectionAction,
+            "notification": NotificationAction,
+            "reconfiguration": HoneypotReconfigurationAction,
+            "countermeasure": CountermeasureAction
+        }
+        self.threat_thresholds = {
+            1: ["notification"],  # Low
+            2: ["notification", "evidence"],  # Medium
+            3: ["notification", "evidence", "deception"],  # High
+            4: ["containment", "notification", "evidence", "deception", "countermeasure"]  # Critical
+        }
+        self.active_responses = {}
+        
+    def _get_default_config(self) -> Dict[str, Any]:
+        return {
+            "enabled": True,
+            "auto_response": True,
+            "response_delay": 5,  # seconds
+            "max_concurrent_responses": 10,
+            "escalation_enabled": True,
+            "notification_targets": ["admin@example.com"]
+        }
+    
+    def process_threat(self, threat_data: Dict[str, Any]) -> bool:
+        """Process a threat and execute appropriate responses"""
+        try:
+            threat_level = threat_data.get("threat_level", 1)
+            session_id = threat_data.get("session_id", "unknown")
+            client_ip = threat_data.get("client_ip", "unknown")
+            
+            logger.info(f"Processing threat from {client_ip}: Level {threat_level}")
+            
+            # Get appropriate response actions for this threat level
+            response_types = self.threat_thresholds.get(threat_level, ["notification"])
+            
+            # Execute each response action
+            responses_executed = []
+            for response_type in response_types:
+                if response_type in self.response_actions:
+                    action_class = self.response_actions[response_type]
+                    action = action_class(threat_data, self.config)
+                    
+                    if action.execute():
+                        responses_executed.append(response_type)
+                        logger.info(f"Executed {response_type} response for {session_id}")
+                    else:
+                        logger.error(f"Failed to execute {response_type} response for {session_id}")
+            
+            # Store active response info
+            self.active_responses[session_id] = {
+                "threat_data": threat_data,
+                "responses": responses_executed,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+            return len(responses_executed) > 0
+            
+        except Exception as e:
+            logger.error(f"Error processing threat: {str(e)}")
+            return False
+    
+    def get_active_responses(self) -> Dict[str, Any]:
+        """Get currently active responses"""
+        return self.active_responses
+    
+    def stop_response(self, session_id: str) -> bool:
+        """Stop active responses for a session"""
+        if session_id in self.active_responses:
+            del self.active_responses[session_id]
+            logger.info(f"Stopped responses for session {session_id}")
+            return True
+        return False
+    
+    def get_response_statistics(self) -> Dict[str, Any]:
+        """Get statistics about response system"""
+        total_responses = len(self.active_responses)
+        response_types = {}
+        
+        for response_info in self.active_responses.values():
+            for response_type in response_info.get("responses", []):
+                response_types[response_type] = response_types.get(response_type, 0) + 1
+        
+        return {
+            "total_active_responses": total_responses,
+            "response_type_counts": response_types,
+            "system_enabled": self.config.get("enabled", True)
+        }
+
+# Main execution for testing
+if __name__ == "__main__":
+    # Initialize response system
+    response_system = AutomatedResponseSystem()
+    
+    # Test threat escalation
+    sample_threat = {
+        "session_id": "test_session",
+        "client_ip": "192.168.1.100",
+        "threat_level": 3,
+        "threat_type": "reconnaissance",
+        "confidence": 0.85,
+        "command_sequence": ["ls", "whoami", "cat /etc/passwd"]
+    }
+    
+    print("Testing NEXDIS Automated Response System...")
+    print(f"Processing threat: {sample_threat['threat_type']} (Level: {sample_threat['threat_level']})")
+    
+    # Process the threat
+    response_system.process_threat(sample_threat)
+    
+    print("Automated response system test completed.")

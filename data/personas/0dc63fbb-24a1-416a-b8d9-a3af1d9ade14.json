@@ -1,0 +1,50 @@
+{
+  "id": "0dc63fbb-24a1-416a-b8d9-a3af1d9ade14",
+  "name": "MorganGarcia680",
+  "skill_level": "expert",
+  "creation_time": "2025-08-23T20:06:43.751761",
+  "last_active": "2025-08-23T20:06:43.751761",
+  "behavior_traits": {
+    "patience": 1.108498029459916,
+    "thoroughness": 0.49422509375245494,
+    "caution": 1.5556262089224717,
+    "persistence": 0.6758549737296081,
+    "creativity": 0.6799587476063098,
+    "adaptability": 0.5763798961388386,
+    "aggression": 0.1934203379295113,
+    "stealth_focus": 0.48308754477767374
+  },
+  "objectives": [
+    "system_reconnaissance",
+    "vulnerability_scanning",
+    "credential_harvesting"
+  ],
+  "tools": [
+    "wget",
+    "nc",
+    "nmap",
+    "scp",
+    "ssh",
+    "metasploit",
+    "sqlmap",
+    "dirb",
+    "responder"
+  ],
+  "indicators": {
+    "typing_patterns": [
+      "occasional_typo"
+    ],
+    "command_patterns": [
+      "oneliners",
+      "advanced_options",
+      "custom_tools"
+    ],
+    "timing_patterns": [
+      "rapid_execution",
+      "variable_timing",
+      "deliberate_delays"
+    ]
+  },
+  "knowledge_base": {},
+  "engagement_history": []
+}

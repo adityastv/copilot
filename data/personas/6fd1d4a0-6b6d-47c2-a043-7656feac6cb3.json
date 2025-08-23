@@ -1,0 +1,46 @@
+{
+  "id": "6fd1d4a0-6b6d-47c2-a043-7656feac6cb3",
+  "name": "JordanJones100",
+  "skill_level": "intermediate",
+  "creation_time": "2025-08-23T20:06:43.752525",
+  "last_active": "2025-08-23T20:06:43.752525",
+  "behavior_traits": {
+    "patience": 1.0162305731411643,
+    "thoroughness": 0.5535011078188962,
+    "caution": 0.3538986457078308,
+    "persistence": 0.20939425789645194,
+    "creativity": 0.19465981327165316,
+    "adaptability": 0.1287978912763801,
+    "aggression": 0.3620184269586313,
+    "stealth_focus": 1.1294776578618968
+  },
+  "objectives": [
+    "data_exfiltration",
+    "lateral_movement",
+    "persistence_establishment"
+  ],
+  "tools": [
+    "wget",
+    "nc",
+    "john",
+    "hydra",
+    "metasploit",
+    "dirb"
+  ],
+  "indicators": {
+    "typing_patterns": [
+      "command_repetition"
+    ],
+    "command_patterns": [
+      "pipe_usage",
+      "script_execution",
+      "parameter_tweaking",
+      "distinctive_aliases"
+    ],
+    "timing_patterns": [
+      "variable_timing"
+    ]
+  },
+  "knowledge_base": {},
+  "engagement_history": []
+}
