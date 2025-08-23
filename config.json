@@ -1,4 +1,9 @@
 {
+    "nexdis": {
+        "version": "1.0.0",
+        "mode": "standalone",
+        "auto_start": ["ssh", "http", "dashboard"]
+    },
     "ssh": {
         "enabled": true,
         "port": 2223,
@@ -6,10 +11,50 @@
         "banner": "SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.1",
         "key_file": "server.key"
     },
+    "http": {
+        "enabled": true,
+        "http_port": 8080,
+        "https_port": 8443,
+        "interface": "0.0.0.0"
+    },
+    "ftp": {
+        "enabled": false,
+        "port": 2121,
+        "interface": "0.0.0.0"
+    },
+    "smb": {
+        "enabled": false,
+        "port": 445,
+        "interface": "0.0.0.0"
+    },
+    "dashboard": {
+        "enabled": true,
+        "port": 9090,
+        "interface": "0.0.0.0"
+    },
+    "threat_intelligence": {
+        "enabled": true,
+        "update_interval": 3600,
+        "sources": ["demo"]
+    },
+    "automated_response": {
+        "enabled": true,
+        "sensitivity": "medium",
+        "auto_deploy_deception": true
+    },
     "logging": {
         "level": "INFO",
         "max_size": 10485760,
         "backup_count": 10
+    },
+    "database": {
+        "type": "sqlite",
+        "file": "nexdis.db"
+    },
+    "api": {
+        "enabled": true,
+        "port": 8888,
+        "auth_required": false
     },
     "emulation": {
         "hostname": "corporate-jumpbox2",

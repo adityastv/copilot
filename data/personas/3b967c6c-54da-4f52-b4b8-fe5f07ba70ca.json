@@ -1,0 +1,46 @@
+{
+  "id": "3b967c6c-54da-4f52-b4b8-fe5f07ba70ca",
+  "name": "RileyPatel220",
+  "skill_level": "novice",
+  "creation_time": "2025-08-23T20:06:43.752357",
+  "last_active": "2025-08-23T20:06:43.752357",
+  "behavior_traits": {
+    "patience": 0.3164891148412011,
+    "thoroughness": 0.25146462137991044,
+    "caution": 0.3349396539346111,
+    "persistence": 0.4284219197256788,
+    "creativity": 0.8039244747296637,
+    "adaptability": 0.21533151621382096,
+    "aggression": 0.90584775917031,
+    "stealth_focus": 0.19015736994683635
+  },
+  "objectives": [
+    "data_exfiltration",
+    "lateral_movement",
+    "persistence_establishment"
+  ],
+  "tools": [
+    "ssh",
+    "nc",
+    "nmap",
+    "curl"
+  ],
+  "indicators": {
+    "typing_patterns": [
+      "frequent_corrections",
+      "fast_typing",
+      "command_repetition"
+    ],
+    "command_patterns": [
+      "basic_commands_only",
+      "help_usage",
+      "verbose_flags",
+      "distinctive_aliases"
+    ],
+    "timing_patterns": [
+      "long_pauses"
+    ]
+  },
+  "knowledge_base": {},
+  "engagement_history": []
+}

@@ -1,0 +1,50 @@
+{
+  "id": "9660871b-ff98-48f9-9994-2edd89b5ff9d",
+  "name": "MorganWang744",
+  "skill_level": "expert",
+  "creation_time": "2025-08-23T20:06:43.752661",
+  "last_active": "2025-08-23T20:06:43.752661",
+  "behavior_traits": {
+    "patience": 0.3459985202225679,
+    "thoroughness": 0.8856196948160006,
+    "caution": 0.8434398427958789,
+    "persistence": 0.11808566684158543,
+    "creativity": 0.14069990524595943,
+    "adaptability": 0.13344794498191273,
+    "aggression": 0.8167660043766167,
+    "stealth_focus": 2.1385186979455355
+  },
+  "objectives": [
+    "data_exfiltration",
+    "lateral_movement",
+    "persistence_establishment"
+  ],
+  "tools": [
+    "curl",
+    "ssh",
+    "nmap",
+    "scp",
+    "hydra",
+    "bloodhound",
+    "cobalt strike",
+    "responder"
+  ],
+  "indicators": {
+    "typing_patterns": [
+      "occasional_typo"
+    ],
+    "command_patterns": [
+      "oneliners",
+      "advanced_options",
+      "custom_tools",
+      "distinctive_aliases"
+    ],
+    "timing_patterns": [
+      "rapid_execution",
+      "variable_timing",
+      "deliberate_delays"
+    ]
+  },
+  "knowledge_base": {},
+  "engagement_history": []
+}

@@ -1,0 +1,49 @@
+{
+  "id": "d0255750-12fb-4e40-aa6b-2b7792f6ab91",
+  "name": "CaseyBrown944",
+  "skill_level": "intermediate",
+  "creation_time": "2025-08-23T20:06:43.751603",
+  "last_active": "2025-08-23T20:06:43.751603",
+  "behavior_traits": {
+    "patience": 1.003289597407723,
+    "thoroughness": 0.962904982107341,
+    "caution": 1.1293834271137237,
+    "persistence": 0.5883888203354558,
+    "creativity": 0.8661535661385102,
+    "adaptability": 0.8972343438765485,
+    "aggression": 0.2550776743173912,
+    "stealth_focus": 0.7584881126616971
+  },
+  "objectives": [
+    "system_reconnaissance",
+    "vulnerability_scanning",
+    "credential_harvesting"
+  ],
+  "tools": [
+    "wget",
+    "nmap",
+    "curl",
+    "scp",
+    "nc",
+    "ssh",
+    "sqlmap",
+    "john"
+  ],
+  "indicators": {
+    "typing_patterns": [
+      "occasional_typo"
+    ],
+    "command_patterns": [
+      "pipe_usage",
+      "script_execution",
+      "parameter_tweaking",
+      "distinctive_aliases"
+    ],
+    "timing_patterns": [
+      "variable_timing",
+      "deliberate_delays"
+    ]
+  },
+  "knowledge_base": {},
+  "engagement_history": []
+}

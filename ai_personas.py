@@ -1287,4 +1287,10 @@ def simulate_engagement(protocol="ssh", system_type="linux", skill_level="expert
     for _ in range(5):
         cmd = action["command"]
         # Simulate command output
-        output = f"Simulated output for
+        output = f"Simulated output for {cmd}"
+        
+        # Process with engagement engine
+        action = engagement_engine.process_command_output(session_id, cmd, output, success=True)
+        print(f"Next action: {action}")
+    
+    print("\n✅ AI Personas demo completed!")

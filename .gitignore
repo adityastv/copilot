@@ -1,0 +1,117 @@
+# NEXDIS Platform .gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/*.log
+logs/**/*.log
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+nexdis.db
+nexdis_saas.db
+
+# SSH Keys
+*.key
+*.pem
+server.key
+server.pub
+
+# Configuration files with secrets
+config.local.json
+.env.local
+.env.production
+
+# ML Models
+models/*.pkl
+models/*.joblib
+models/*.model
+
+# Uploads and temp files
+uploads/
+temp/
+tmp/
+*.tmp
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Plugin cache
+plugins/cache/
+plugins/installed/*.pyc
+
+# Threat intelligence data
+data/threat_intel/*.json
+data/threat_intel/*.xml
+
+# Backup files
+backups/
+*.backup
+*.bak
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Documentation builds
+docs/_build/
+site/
+
+# Docker
+Dockerfile.local
+docker-compose.override.yml
+
+# Local development
+.local/
+local_config/
