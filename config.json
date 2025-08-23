@@ -29,7 +29,7 @@
     },
     "dashboard": {
         "enabled": true,
-        "port": 9090,
+        "port": 8081,
         "interface": "0.0.0.0"
     },
     "threat_intelligence": {

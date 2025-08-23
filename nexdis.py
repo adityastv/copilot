@@ -20,7 +20,7 @@ from typing import Dict, List, Optional, Any
 from ssh_honeypot_server import main as ssh_main, SSH_BANNER, VERSION
 from http_honeypot import HTTPHoneypot
 from ftp_honeypot import FTPHoneypot
-from threat_dashboard import ThreatDashboard
+from improved_dashboard import ImprovedThreatDashboard
 from threat_classification import ThreatClassifier
 from automated_response import AutomatedResponseSystem
 from honeypot_integration import patch_ssh_honeypot
@@ -59,7 +59,7 @@ class NEXDISPlatform:
         # Initialize core components
         self.threat_classifier = ThreatClassifier()
         self.response_system = AutomatedResponseSystem()
-        self.dashboard = ThreatDashboard()
+        self.dashboard = None  # Initialize later with config
         
     def load_config(self) -> Dict[str, Any]:
         """Load platform configuration"""
@@ -196,11 +196,14 @@ class NEXDISPlatform:
                 self.services["ftp"] = "running"
                 
             elif service_name == "dashboard" and self.config.get("dashboard", {}).get("enabled", False):
-                self.logger.info("Starting threat dashboard...")
+                self.logger.info("Starting improved threat dashboard...")
+                if not self.dashboard:
+                    dashboard_port = self.config.get("dashboard", {}).get("port", 8081)
+                    self.dashboard = ImprovedThreatDashboard(port=dashboard_port)
                 dashboard_thread = threading.Thread(
                     target=self.dashboard.start,
                     daemon=True,
-                    name="Threat-Dashboard"
+                    name="Improved-Dashboard"
                 )
                 dashboard_thread.start()
                 self.threads["dashboard"] = dashboard_thread
@@ -309,7 +312,8 @@ class NEXDISPlatform:
         
         self.logger.info("NEXDIS platform startup complete")
         print("\n🛡️  NEXDIS Platform is running!")
-        print(f"📊 Dashboard: http://localhost:{self.config.get('dashboard', {}).get('port', 9090)}")
+        print(f"📊 Dashboard: http://localhost:{self.config.get('dashboard', {}).get('port', 8081)}")
+        print(f"🔧 SaaS Admin: http://localhost:{self.config.get('dashboard', {}).get('port', 8081)}/saas")
         print(f"🔌 API: http://localhost:{self.config.get('api', {}).get('port', 8888)}/api/status")
         print("📋 Services running:")
         

