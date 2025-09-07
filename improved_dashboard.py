@@ -39,6 +39,10 @@ class ImprovedDashboardRequestHandler(BaseHTTPRequestHandler):
             self.serve_dashboard()
         elif path == "/saas":
             self.serve_saas_interface()
+        elif path == "/student":
+            self.serve_student_dashboard()
+        elif path == "/leaderboard":
+            self.serve_leaderboard()
         elif path == "/api/sessions":
             self.serve_sessions()
         elif path.startswith("/api/session/"):
@@ -48,8 +52,24 @@ class ImprovedDashboardRequestHandler(BaseHTTPRequestHandler):
             self.serve_alerts()
         elif path == "/api/stats":
             self.serve_stats()
+        elif path == "/api/student/points":
+            self.serve_student_points()
+        elif path == "/api/leaderboard":
+            self.serve_leaderboard_data()
+        elif path == "/api/questions":
+            self.serve_questions()
         elif path.startswith("/static/"):
             self.serve_static_file(path[8:])
+        else:
+            self.send_error(404)
+            
+    def do_POST(self):
+        """Handle POST requests"""
+        parsed_url = urlparse(self.path)
+        path = parsed_url.path
+        
+        if path == "/api/submit-answer":
+            self.handle_answer_submission()
         else:
             self.send_error(404)
             
@@ -369,6 +389,8 @@ class ImprovedDashboardRequestHandler(BaseHTTPRequestHandler):
             <ul class="nav-menu">
                 <li><a href="#" class="nav-link active">Dashboard</a></li>
                 <li><a href="/saas" class="nav-link">SaaS Admin</a></li>
+                <li><a href="/student" class="nav-link">Student Portal</a></li>
+                <li><a href="/leaderboard" class="nav-link">Leaderboard</a></li>
                 <li><a href="#sessions" class="nav-link">Sessions</a></li>
                 <li><a href="#alerts" class="nav-link">Alerts</a></li>
                 <li><a href="#reports" class="nav-link">Reports</a></li>
@@ -474,6 +496,37 @@ class ImprovedDashboardRequestHandler(BaseHTTPRequestHandler):
     <script>
         // Global variables
         let refreshInterval;
+        
+        // Disable right-click context menu
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Disable common copy/paste keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Disable Ctrl+C, Ctrl+V, Ctrl+A, Ctrl+X, F12
+            if ((e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'a' || e.key === 'x')) || e.key === 'F12') {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Disable Ctrl+Shift+I (developer tools)
+            if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Disable Ctrl+U (view source)
+            if (e.ctrlKey && e.key === 'u') {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Disable text selection on drag
+        document.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+        });
         
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
@@ -1485,6 +1538,1107 @@ class ImprovedDashboardRequestHandler(BaseHTTPRequestHandler):
         self.send_header('Content-Length', str(len(response)))
         self.end_headers()
         self.wfile.write(response.encode('utf-8'))
+
+    def serve_student_dashboard(self):
+        """Serve the student dashboard HTML"""
+        html = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXDIS - Student Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+            user-select: none; /* Prevent text selection */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        
+        /* Disable copy/paste */
+        .no-copy {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            pointer-events: none;
+        }
+        
+        input, textarea {
+            pointer-events: auto; /* Re-enable for input fields */
+        }
+        
+        /* Navigation */
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+        
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .student-header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .student-name {
+            font-size: 2rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .student-points {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+        
+        .points-label {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        .panel {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .panel-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .panel-content {
+            padding: 20px;
+        }
+        
+        .question {
+            margin-bottom: 20px;
+        }
+        
+        .question-text {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .options {
+            list-style: none;
+            margin-bottom: 15px;
+        }
+        
+        .option {
+            margin-bottom: 10px;
+        }
+        
+        .option input {
+            margin-right: 10px;
+        }
+        
+        .option label {
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: opacity 0.3s;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .result.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .result.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .leaderboard-preview {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .leaderboard-item:last-child {
+            border-bottom: none;
+        }
+        
+        .rank {
+            font-weight: bold;
+            color: #667eea;
+            margin-right: 15px;
+        }
+        
+        .username {
+            flex-grow: 1;
+        }
+        
+        .points {
+            font-weight: bold;
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="navbar-brand">
+                🛡️ NEXDIS Student Portal
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/" class="nav-link">Dashboard</a></li>
+                <li><a href="/saas" class="nav-link">SaaS Admin</a></li>
+                <li><a href="/student" class="nav-link active">Student Portal</a></li>
+                <li><a href="/leaderboard" class="nav-link">Leaderboard</a></li>
+                <li><a href="#sessions" class="nav-link">Sessions</a></li>
+                <li><a href="#alerts" class="nav-link">Alerts</a></li>
+                <li><a href="#reports" class="nav-link">Reports</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Student Header -->
+        <div class="student-header">
+            <div class="student-name" id="student-name">Student Dashboard</div>
+            <div class="student-points" id="student-points">0</div>
+            <div class="points-label">Points Earned</div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content-grid">
+            <div class="panel">
+                <div class="panel-header">
+                    🧠 Cybersecurity Challenge
+                </div>
+                <div class="panel-content">
+                    <div id="question-container">
+                        <div class="loading">Loading question...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    🏆 Top Performers
+                </div>
+                <div class="panel-content">
+                    <div class="leaderboard-preview" id="leaderboard-preview">
+                        <div class="loading">Loading leaderboard...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Disable right-click context menu
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Disable common copy/paste keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Disable Ctrl+C, Ctrl+V, Ctrl+A, Ctrl+X, F12
+            if ((e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'a' || e.key === 'x')) || e.key === 'F12') {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Disable Ctrl+Shift+I (developer tools)
+            if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Disable Ctrl+U (view source)
+            if (e.ctrlKey && e.key === 'u') {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Disable text selection on drag
+        document.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+        });
+
+        let currentQuestion = null;
+        let studentPoints = 0;
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStudentPoints();
+            loadQuestion();
+            loadLeaderboardPreview();
+        });
+
+        function loadStudentPoints() {
+            fetch('/api/student/points')
+                .then(response => response.json())
+                .then(data => {
+                    studentPoints = data.points || 0;
+                    document.getElementById('student-points').textContent = studentPoints;
+                })
+                .catch(error => {
+                    console.error('Error loading student points:', error);
+                });
+        }
+
+        function loadQuestion() {
+            fetch('/api/questions')
+                .then(response => response.json())
+                .then(data => {
+                    currentQuestion = data;
+                    displayQuestion(data);
+                })
+                .catch(error => {
+                    console.error('Error loading question:', error);
+                    document.getElementById('question-container').innerHTML = '<div class="loading">Error loading question</div>';
+                });
+        }
+
+        function displayQuestion(questionData) {
+            const container = document.getElementById('question-container');
+            const optionsHtml = questionData.options.map((option, index) => 
+                `<div class="option">
+                    <input type="radio" id="option${index}" name="answer" value="${index}">
+                    <label for="option${index}">${option}</label>
+                </div>`
+            ).join('');
+
+            container.innerHTML = `
+                <div class="question">
+                    <div class="question-text">${questionData.question}</div>
+                    <ul class="options">
+                        ${optionsHtml}
+                    </ul>
+                    <button class="btn" onclick="submitAnswer()">Submit Answer</button>
+                    <div class="result" id="result"></div>
+                </div>
+            `;
+        }
+
+        function submitAnswer() {
+            const selectedOption = document.querySelector('input[name="answer"]:checked');
+            if (!selectedOption) {
+                alert('Please select an answer');
+                return;
+            }
+
+            const answerData = {
+                questionId: currentQuestion.id,
+                selectedAnswer: parseInt(selectedOption.value)
+            };
+
+            fetch('/api/submit-answer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(answerData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultElement = document.getElementById('result');
+                resultElement.style.display = 'block';
+                
+                if (data.correct) {
+                    resultElement.className = 'result correct';
+                    resultElement.innerHTML = `
+                        <strong>Correct!</strong> ${data.explanation}<br>
+                        <strong>Points earned: +${data.pointsEarned}</strong>
+                    `;
+                    studentPoints = data.newPoints;
+                    document.getElementById('student-points').textContent = studentPoints;
+                    
+                    // Load new question after a delay
+                    setTimeout(() => {
+                        loadQuestion();
+                        loadLeaderboardPreview(); // Refresh leaderboard
+                    }, 2000);
+                } else {
+                    resultElement.className = 'result incorrect';
+                    resultElement.innerHTML = `
+                        <strong>Incorrect.</strong> ${data.explanation}<br>
+                        The correct answer was: ${currentQuestion.options[currentQuestion.correctAnswer]}
+                    `;
+                    
+                    // Load new question after a delay
+                    setTimeout(() => {
+                        loadQuestion();
+                    }, 3000);
+                }
+
+                // Disable submit button
+                document.querySelector('.btn').disabled = true;
+            })
+            .catch(error => {
+                console.error('Error submitting answer:', error);
+                alert('Error submitting answer. Please try again.');
+            });
+        }
+
+        function loadLeaderboardPreview() {
+            fetch('/api/leaderboard')
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('leaderboard-preview');
+                    const leaderboardHtml = data.slice(0, 5).map((user, index) => 
+                        `<div class="leaderboard-item">
+                            <span class="rank">#${index + 1}</span>
+                            <span class="username">${user.username}</span>
+                            <span class="points">${user.points}</span>
+                        </div>`
+                    ).join('');
+                    
+                    container.innerHTML = leaderboardHtml || '<div class="loading">No data available</div>';
+                })
+                .catch(error => {
+                    console.error('Error loading leaderboard:', error);
+                    document.getElementById('leaderboard-preview').innerHTML = '<div class="loading">Error loading leaderboard</div>';
+                });
+        }
+    </script>
+</body>
+</html>
+        """
+        
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        response = html.encode('utf-8')
+        self.send_header('Content-Length', str(len(response)))
+        self.end_headers()
+        self.wfile.write(response)
+
+    def serve_leaderboard(self):
+        """Serve the leaderboard HTML"""
+        html = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXDIS - Leaderboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+            user-select: none; /* Prevent text selection */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        
+        /* Navigation */
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+        
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .leaderboard-header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .leaderboard-title {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .leaderboard-subtitle {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+        
+        .leaderboard-panel {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .panel-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .leaderboard-content {
+            padding: 20px;
+        }
+        
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.3s;
+        }
+        
+        .leaderboard-item:last-child {
+            border-bottom: none;
+        }
+        
+        .leaderboard-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .leaderboard-item.top-3 {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #333;
+        }
+        
+        .leaderboard-item.top-3:nth-child(1) {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        }
+        
+        .leaderboard-item.top-3:nth-child(2) {
+            background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
+        }
+        
+        .leaderboard-item.top-3:nth-child(3) {
+            background: linear-gradient(135deg, #cd7f32 0%, #deb887 100%);
+        }
+        
+        .rank {
+            font-weight: bold;
+            color: #667eea;
+            margin-right: 15px;
+            font-size: 1.2rem;
+            min-width: 40px;
+        }
+        
+        .top-3 .rank {
+            color: #333;
+        }
+        
+        .user-info {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .username {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .user-details {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .points {
+            font-weight: bold;
+            color: #28a745;
+            font-size: 1.2rem;
+        }
+        
+        .top-3 .points {
+            color: #333;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 20px;
+        }
+        
+        .medal {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="navbar-brand">
+                🏆 NEXDIS Leaderboard
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/" class="nav-link">Dashboard</a></li>
+                <li><a href="/saas" class="nav-link">SaaS Admin</a></li>
+                <li><a href="/student" class="nav-link">Student Portal</a></li>
+                <li><a href="/leaderboard" class="nav-link active">Leaderboard</a></li>
+                <li><a href="#sessions" class="nav-link">Sessions</a></li>
+                <li><a href="#alerts" class="nav-link">Alerts</a></li>
+                <li><a href="#reports" class="nav-link">Reports</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Leaderboard Header -->
+        <div class="leaderboard-header">
+            <div class="leaderboard-title">🏆 Top Cybersecurity Students</div>
+            <div class="leaderboard-subtitle">Rankings based on challenge completion points</div>
+        </div>
+
+        <!-- Leaderboard Panel -->
+        <div class="leaderboard-panel">
+            <div class="panel-header">
+                Current Rankings
+            </div>
+            <div class="leaderboard-content" id="leaderboard-content">
+                <div class="loading">Loading leaderboard...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Disable right-click context menu
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Disable common copy/paste keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Disable Ctrl+C, Ctrl+V, Ctrl+A, Ctrl+X, F12
+            if ((e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'a' || e.key === 'x')) || e.key === 'F12') {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Disable Ctrl+Shift+I (developer tools)
+            if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Disable Ctrl+U (view source)
+            if (e.ctrlKey && e.key === 'u') {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Initialize leaderboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadLeaderboard();
+            
+            // Refresh every 30 seconds
+            setInterval(loadLeaderboard, 30000);
+        });
+
+        function loadLeaderboard() {
+            fetch('/api/leaderboard')
+                .then(response => response.json())
+                .then(data => {
+                    displayLeaderboard(data);
+                })
+                .catch(error => {
+                    console.error('Error loading leaderboard:', error);
+                    document.getElementById('leaderboard-content').innerHTML = '<div class="loading">Error loading leaderboard</div>';
+                });
+        }
+
+        function displayLeaderboard(leaderboardData) {
+            const container = document.getElementById('leaderboard-content');
+            
+            if (!leaderboardData || leaderboardData.length === 0) {
+                container.innerHTML = '<div class="loading">No students have earned points yet</div>';
+                return;
+            }
+            
+            const getMedal = (rank) => {
+                if (rank === 1) return '🥇';
+                if (rank === 2) return '🥈';
+                if (rank === 3) return '🥉';
+                return '';
+            };
+            
+            const leaderboardHtml = leaderboardData.map((user, index) => {
+                const rank = index + 1;
+                const isTop3 = rank <= 3;
+                const medal = getMedal(rank);
+                
+                return `
+                    <div class="leaderboard-item ${isTop3 ? 'top-3' : ''}">
+                        <span class="rank">${medal}#${rank}</span>
+                        <div class="user-info">
+                            <div class="username">${user.username}</div>
+                            <div class="user-details">Challenges completed: ${user.challengesCompleted || 0}</div>
+                        </div>
+                        <span class="points">${user.points}</span>
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = leaderboardHtml;
+        }
+    </script>
+</body>
+</html>
+        """
+        
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        response = html.encode('utf-8')
+        self.send_header('Content-Length', str(len(response)))
+        self.end_headers()
+        self.wfile.write(response)
+
+    def serve_student_points(self):
+        """Serve student points data"""
+        # For now, return mock data. In a real implementation, this would come from a database
+        points_data = self.get_student_data()
+        
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        response = json.dumps(points_data)
+        self.send_header('Content-Length', str(len(response)))
+        self.end_headers()
+        self.wfile.write(response.encode('utf-8'))
+
+    def serve_leaderboard_data(self):
+        """Serve leaderboard data"""
+        leaderboard_data = self.get_leaderboard_data()
+        
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        response = json.dumps(leaderboard_data)
+        self.send_header('Content-Length', str(len(response)))
+        self.end_headers()
+        self.wfile.write(response.encode('utf-8'))
+
+    def serve_questions(self):
+        """Serve cybersecurity questions"""
+        question_data = self.get_random_question()
+        
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        response = json.dumps(question_data)
+        self.send_header('Content-Length', str(len(response)))
+        self.end_headers()
+        self.wfile.write(response.encode('utf-8'))
+
+    def handle_answer_submission(self):
+        """Handle answer submission"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            answer_data = json.loads(post_data.decode('utf-8'))
+            
+            result = self.check_answer(answer_data['questionId'], answer_data['selectedAnswer'])
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            response = json.dumps(result)
+            self.send_header('Content-Length', str(len(response)))
+            self.end_headers()
+            self.wfile.write(response.encode('utf-8'))
+            
+        except Exception as e:
+            error_response = {"error": "Invalid request", "details": str(e)}
+            self.send_response(400)
+            self.send_header('Content-type', 'application/json')
+            response = json.dumps(error_response)
+            self.send_header('Content-Length', str(len(response)))
+            self.end_headers()
+            self.wfile.write(response.encode('utf-8'))
+
+    def get_student_data(self):
+        """Get or initialize student data"""
+        # In a real implementation, this would use a database
+        student_file = "data/student_data.json"
+        
+        # Create data directory if it doesn't exist
+        os.makedirs("data", exist_ok=True)
+        
+        try:
+            if os.path.exists(student_file):
+                with open(student_file, 'r') as f:
+                    return json.load(f)
+        except:
+            pass
+            
+        # Default student data
+        default_data = {
+            "username": "Student",
+            "points": 0,
+            "challengesCompleted": 0,
+            "lastActivity": datetime.datetime.now().isoformat()
+        }
+        
+        # Save default data
+        try:
+            with open(student_file, 'w') as f:
+                json.dump(default_data, f, indent=2)
+        except:
+            pass
+            
+        return default_data
+
+    def update_student_points(self, points_earned):
+        """Update student points"""
+        student_data = self.get_student_data()
+        student_data['points'] += points_earned
+        student_data['challengesCompleted'] += 1
+        student_data['lastActivity'] = datetime.datetime.now().isoformat()
+        
+        # Save updated data
+        try:
+            with open("data/student_data.json", 'w') as f:
+                json.dump(student_data, f, indent=2)
+        except:
+            pass
+            
+        # Update leaderboard
+        self.update_leaderboard(student_data)
+        
+        return student_data
+
+    def get_leaderboard_data(self):
+        """Get leaderboard data"""
+        leaderboard_file = "data/leaderboard.json"
+        
+        try:
+            if os.path.exists(leaderboard_file):
+                with open(leaderboard_file, 'r') as f:
+                    leaderboard = json.load(f)
+                    # Sort by points descending
+                    return sorted(leaderboard, key=lambda x: x['points'], reverse=True)
+        except:
+            pass
+            
+        # Return default leaderboard with current student
+        student_data = self.get_student_data()
+        return [student_data] if student_data['points'] > 0 else []
+
+    def update_leaderboard(self, student_data):
+        """Update leaderboard with student data"""
+        leaderboard_file = "data/leaderboard.json"
+        
+        try:
+            if os.path.exists(leaderboard_file):
+                with open(leaderboard_file, 'r') as f:
+                    leaderboard = json.load(f)
+            else:
+                leaderboard = []
+        except:
+            leaderboard = []
+        
+        # Find and update existing entry or add new one
+        found = False
+        for i, entry in enumerate(leaderboard):
+            if entry['username'] == student_data['username']:
+                leaderboard[i] = student_data
+                found = True
+                break
+        
+        if not found:
+            leaderboard.append(student_data)
+        
+        # Sort by points and keep top 100
+        leaderboard = sorted(leaderboard, key=lambda x: x['points'], reverse=True)[:100]
+        
+        # Save updated leaderboard
+        try:
+            with open(leaderboard_file, 'w') as f:
+                json.dump(leaderboard, f, indent=2)
+        except:
+            pass
+
+    def get_random_question(self):
+        """Get a random cybersecurity question"""
+        questions = [
+            {
+                "id": 1,
+                "question": "What is the primary purpose of a honeypot in cybersecurity?",
+                "options": [
+                    "To store sensitive data securely",
+                    "To attract and monitor attackers",
+                    "To encrypt network traffic",
+                    "To backup critical systems"
+                ],
+                "correctAnswer": 1,
+                "explanation": "A honeypot is a decoy system designed to attract and monitor attackers, allowing security professionals to study their techniques.",
+                "points": 10
+            },
+            {
+                "id": 2,
+                "question": "Which of the following is NOT a common type of social engineering attack?",
+                "options": [
+                    "Phishing",
+                    "Pretexting",
+                    "Buffer overflow",
+                    "Baiting"
+                ],
+                "correctAnswer": 2,
+                "explanation": "Buffer overflow is a technical vulnerability exploitation technique, not a social engineering attack.",
+                "points": 15
+            },
+            {
+                "id": 3,
+                "question": "What does SSH stand for in cybersecurity?",
+                "options": [
+                    "Secure Socket Handler",
+                    "System Security Hub",
+                    "Secure Shell",
+                    "Security Service Host"
+                ],
+                "correctAnswer": 2,
+                "explanation": "SSH stands for Secure Shell, a network protocol for secure communication between computers.",
+                "points": 5
+            },
+            {
+                "id": 4,
+                "question": "Which port is commonly used for HTTPS traffic?",
+                "options": [
+                    "80",
+                    "22",
+                    "443",
+                    "21"
+                ],
+                "correctAnswer": 2,
+                "explanation": "Port 443 is the standard port for HTTPS (secure HTTP) traffic.",
+                "points": 5
+            },
+            {
+                "id": 5,
+                "question": "What is the main difference between a vulnerability and an exploit?",
+                "options": [
+                    "There is no difference",
+                    "A vulnerability is a weakness; an exploit takes advantage of it",
+                    "An exploit is theoretical; a vulnerability is practical",
+                    "Vulnerabilities are in hardware; exploits are in software"
+                ],
+                "correctAnswer": 1,
+                "explanation": "A vulnerability is a security weakness or flaw, while an exploit is code or technique that takes advantage of that vulnerability.",
+                "points": 20
+            }
+        ]
+        
+        # Return a random question
+        import random
+        return random.choice(questions)
+
+    def check_answer(self, question_id, selected_answer):
+        """Check if the submitted answer is correct"""
+        # In a real implementation, you'd look up the question by ID
+        # For now, we'll get a fresh question and compare (this is not ideal for production)
+        questions = [
+            {
+                "id": 1,
+                "correctAnswer": 1,
+                "explanation": "A honeypot is a decoy system designed to attract and monitor attackers, allowing security professionals to study their techniques.",
+                "points": 10
+            },
+            {
+                "id": 2,
+                "correctAnswer": 2,
+                "explanation": "Buffer overflow is a technical vulnerability exploitation technique, not a social engineering attack.",
+                "points": 15
+            },
+            {
+                "id": 3,
+                "correctAnswer": 2,
+                "explanation": "SSH stands for Secure Shell, a network protocol for secure communication between computers.",
+                "points": 5
+            },
+            {
+                "id": 4,
+                "correctAnswer": 2,
+                "explanation": "Port 443 is the standard port for HTTPS (secure HTTP) traffic.",
+                "points": 5
+            },
+            {
+                "id": 5,
+                "correctAnswer": 1,
+                "explanation": "A vulnerability is a security weakness or flaw, while an exploit is code or technique that takes advantage of that vulnerability.",
+                "points": 20
+            }
+        ]
+        
+        # Find question by ID
+        question = None
+        for q in questions:
+            if q["id"] == question_id:
+                question = q
+                break
+        
+        if not question:
+            return {
+                "correct": False,
+                "explanation": "Question not found",
+                "pointsEarned": 0,
+                "newPoints": self.get_student_data()['points']
+            }
+        
+        correct = selected_answer == question["correctAnswer"]
+        points_earned = question["points"] if correct else 0
+        
+        if correct:
+            updated_student = self.update_student_points(points_earned)
+            new_points = updated_student['points']
+        else:
+            new_points = self.get_student_data()['points']
+        
+        return {
+            "correct": correct,
+            "explanation": question["explanation"],
+            "pointsEarned": points_earned,
+            "newPoints": new_points
+        }
 
 class ImprovedThreatDashboard:
     """Improved Threat Dashboard with better UI and SaaS integration"""
